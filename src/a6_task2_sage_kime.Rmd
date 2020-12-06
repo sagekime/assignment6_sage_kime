@@ -1,0 +1,83 @@
+---
+title: "Determining whether political affiliation and identifying as an environmentalist are independent"
+author: "Sage Kime"
+date: "12/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(here)
+library(kableExtra)
+library(broom)
+```
+
+### Overview
+
+In this document, I explore and wrangle the conservation survey data set to test for independence between political affiliation and identification as an environmentalist. I will wrangle the data to only include the aforementioned variables. Then I will create a finalized table that shows the proportions and counts of the survey results we are examining. Finally, I will perform a chi square test to determine if a significant association exists, and I will state my overall takeaways from the data.
+
+```{r, echo=FALSE}
+# Read in data and keep only necessary variables
+
+conservation_survey <- read.csv(here("data", "conservation_survey.csv")) %>% 
+  select(ENV_ID, POL_OR) # use select function to pick which variables to keep
+```
+
+
+
+```{r, echo=FALSE}
+# Add new column identifying political affiliation
+
+party_subset <- conservation_survey %>% 
+  mutate(POL_OR = case_when(
+    between(POL_OR, 1, 3) ~ "Conservative",
+    between(POL_OR, 5, 7) ~ "Liberal"
+  )) %>% 
+  na.omit()
+```
+
+### Data visualization
+
+```{r, echo=FALSE}
+# Create a finalized table w/ counts and proportions - add figure caption
+
+survey_results <- party_subset %>% 
+  janitor::tabyl(POL_OR, ENV_ID) %>% 
+  rename("Yes" = "1", "No" = "2", "Unsure" = "3")
+
+  survey_proportions <- survey_results %>% 
+  adorn_percentages() %>% # use this to create a table with counts AND proportions
+  adorn_pct_formatting(digits = 2) %>% # 
+  adorn_ns()
+  
+  kbl(survey_proportions, col.names = c("", "Yes", "No", "Unsure"), caption = "Table 1. Survey responses show whether individuals identify as environmentalists, by political affiliation. Data source: Andrews Forest LTER Site and C. Batavia. 2019") %>% #rename to look tidy
+    kable_styling(full_width = FALSE, "hover")
+  
+```
+
+
+
+```{r, echo=FALSE}
+# Make contingency table
+
+survey_ct <- survey_results %>% 
+  column_to_rownames(var = "POL_OR") #convert entries in a column to stored rownames
+```
+
+```{r, echo=FALSE}
+# Run chi-square and tidy results
+
+survey_x2 <- chisq.test(survey_ct) #perform chi square test
+
+survey_tidy <- tidy(survey_x2) # use tidy function from broom package to make in-line referencing easier
+```
+
+### Summary
+
+There is a significant association between political affiliation and identifying as an environmentalist ($\chi$^2^(`r survey_tidy$parameter`) = `r round(survey_tidy$statistic,2)`, *p* = `r round(survey_tidy$p.value, 3)`). Looking back at Table 1, we can see that 53.73% of liberals identified as environmentalists while only 33.65% of conservatives identified as environmentalists - this difference is large enough to support our rejection of the null hypothesis.
+
+### Citation
+
+Data source: Andrews Forest LTER Site and C. Batavia. 2019. Influences on charitable giving for conservation: Online survey data of 1,331 respondents across the US, August 2017 ver 3. Environmental Data Initiative. https://doi.org/10.6073/pasta/926e6270e324a1322a900da14d38b96c (Accessed 2020-12-06).
