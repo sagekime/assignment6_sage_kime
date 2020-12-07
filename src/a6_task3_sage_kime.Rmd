@@ -1,0 +1,118 @@
+---
+title: "Comparing total lengths of female lizards by species"
+author: "Sage Kime"
+date: "12/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(here)
+library(kableExtra)
+library(broom)
+library(beeswarm)
+library(effsize)
+```
+
+### Overview
+
+In this document, I explore and wrangle the lizards data set to compare total lengths of female lizards between species. My goal is to determine if there is a significant difference in total length difference in mean total length between female lizards for the two species. I will create a data visualization that shows the differences in total length, along with a summary statistics table that shows mean, standard deviation, and sample size. Finally, I will perform a 2-sample t-test and a cohen's d test to determine if a significant difference in means exists between species, and I will state my overall takeaways from the data.
+
+
+```{r, echo=FALSE, warning=FALSE}
+# Read in data and keep only necessary variables
+
+lizards <- read.csv(here("data", "lizards.csv")) %>% 
+    select(spp, sex, total_length) %>%  # use select function to pick which variables to keep
+    filter(sex == "F",
+         spp == "CNUN" | spp == "CNTE") %>% 
+  mutate(spp = case_when(
+    spp == "CNUN" ~ "Desert Grassland lizard",
+    spp == "CNTE" ~ "Colorado Checkered lizard"
+  ))
+```
+
+
+### Data visualization
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data = lizards, aes(x = spp, y = total_length)) +
+  geom_jitter(width = .3, size = 3, aes(color = spp)) +
+  geom_boxplot(outlier.shape = NA, fill = NA, width = .3) +
+  stat_summary(fun.y = mean) +
+  labs(x = "Species", y = "Total length (mm)", title = "Comparing total lengths of female lizards by species")
+```
+
+**Figure 1.** Comparing total length in millimeters of female lizards by species. Box endpoints indicate the 25th and 75th percentile values; the black point within the box indicates the mean value for each sex, and the black line indicates the median value. Data: Lightfoot, D. (2017). 
+
+```{r, include=FALSE, warning = FALSE}
+lizard_summary <- lizards %>% 
+  group_by(spp) %>% # group by species
+  summarize(
+    mean_length = mean(total_length, na.rm = TRUE),
+    sd = sd(total_length, na.rm = TRUE),
+    n = n()
+  )
+```
+
+### Summary statistics
+
+```{r, echo=FALSE}
+kbl(lizard_summary, col.names = c("Species", "Mean Length (mm)", "Standard Deviation", "Sample Size"), caption = "Table 1. Descriptive statistics (mean, standard deviation, and sample size) for total lengths of female lizards, by species. Colorado Checkered lizard refers to CNTE, and Desert Grassland lizard refers to CNUN. Data: Lightfoot, D. (2017).") %>% #rename to look tidy
+    kable_styling(full_width = FALSE, "hover")
+```
+
+
+```{r, include = FALSE}
+# create some exploratory data visualizations to check for normality - do not need to finalize
+ggplot(data = lizards, aes(x = total_length)) +
+  geom_histogram(bins = 5) +
+  facet_wrap(~spp)
+
+ggplot(data = lizards, aes(sample = total_length)) +
+  geom_qq() +
+  facet_wrap(~spp)
+
+# both the histogram and qqplot lead me to believe this data is relatively normally distributed
+```
+
+```{r, include=FALSE}
+# create vectors of separate species
+lizards_cnun <- lizards %>% 
+  filter(spp == "Desert Grassland lizard") %>% 
+  pull(total_length)
+
+lizards_cnte <- lizards %>% 
+  filter(spp == "Colorado Checkered lizard") %>% 
+  pull(total_length)
+
+# exploratory data visualization 
+hist(lizards_cnun) # looks normal - positively skewed
+qqnorm(lizards_cnun) #relatively linear
+hist(lizards_cnte) # looks normal - positively skewed
+qqnorm(lizards_cnte) #relatively linear
+
+# complete a two sample t-test
+lizard_ttest <- t.test(lizards_cnun, lizards_cnte)
+lizard_ttest
+
+# tidy the t-test results using broom
+lizards_tidy <- broom::tidy(lizard_ttest)
+lizards_tidy
+
+# test effect size using Cohen's d
+lizard_effsize <- cohen.d(lizards_cnun, lizards_cnte, na.rm = T)
+lizard_effsize
+```
+
+### Summary
+
+There is a significant difference between the mean total lengths of female Desert Grassland lizards (CNUN) and Colorado Checkered lizards (CNTE). The absolute difference in means between female Desert Grassland lizards and Colorado Checkered lizards is approximately `r round(lizards_tidy$estimate2,2) - round(lizards_tidy$estimate1,2)` mm, which is a `r round(((lizards_tidy$estimate2) - (lizards_tidy$estimate1))/(((lizards_tidy$estimate2) + (lizards_tidy$estimate1))/2)*100,2)`% difference. The difference in means is significant according to the Welch's two-sample t-test: t(`r round(lizards_tidy$parameter,2)`) = `r round(lizards_tidy$statistic,2)`, p < `r round (lizards_tidy$p.value,2)`, and the effect size is large: Cohen's d = `r round(lizard_effsize$estimate,2)`.
+
+
+### Citation
+
+Lightfoot, D. 2017. Lizard pitfall trap data (LTER-II, LTER-III) ver 36. Environmental Data Initiative. https://doi.org/10.6073/pasta/ff37b4cace16a9943575f3fd7067064e (Accessed 2020-12-06).
+
