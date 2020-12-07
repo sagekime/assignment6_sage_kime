@@ -28,7 +28,7 @@ lizards <- read.csv(here("data", "lizards.csv")) %>%
     select(spp, sex, total_length) %>%  # use select function to pick which variables to keep
     filter(sex == "F",
          spp == "CNUN" | spp == "CNTE") %>% 
-  mutate(spp = case_when(
+  mutate(spp = case_when( # mutate and use case_when to change variable names
     spp == "CNUN" ~ "Desert Grassland lizard",
     spp == "CNTE" ~ "Colorado Checkered lizard"
   ))
@@ -50,7 +50,7 @@ ggplot(data = lizards, aes(x = spp, y = total_length)) +
 ```{r, include=FALSE, warning = FALSE}
 lizard_summary <- lizards %>% 
   group_by(spp) %>% # group by species
-  summarize(
+  summarize( # use summarize to get summary statistics
     mean_length = mean(total_length, na.rm = TRUE),
     sd = sd(total_length, na.rm = TRUE),
     n = n()
