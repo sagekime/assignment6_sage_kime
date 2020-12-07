@@ -25,7 +25,7 @@ ggplot(data = mono_lake, aes(x = year, y = lake_level_feet_above_sea_level)) +
   geom_hline(yintercept = 6377, linetype = "dashed", color = "red") +
     geom_hline(yintercept = 6392, linetype = "solid", color = "darkblue") +
     annotate(geom = "point", x= 1941, y = 6417, shape = "triangle", size = 5) +
-    annotate("text", x = 1972, y = 6417, label = "1941: Water diversion begins", size = 3.5) +
+    annotate("text", x = 1975, y = 6417, label = "1941: Water diversion begins", size = 3.5) +
     annotate("text", x = 1880, y = 6380, label = "6377 ft: Land bridges emerge", size = 3.5) +
     annotate("text", x = 1875, y = 6395, label = "6392 ft: Stable lake level", size = 3.5) +
     annotate(geom = "point", x= 1978, y = 6375, shape = "square", size = 5) +
@@ -35,4 +35,4 @@ ggplot(data = mono_lake, aes(x = year, y = lake_level_feet_above_sea_level)) +
 
 ```
 
-**Figure 1:** Annual changes in lake level at Mono Lake in Lee Vining, CA along with potential causes and impacts. The black triangle depicts the water diversions that began in 1941, diverting water from the lake's tributary streams to meet increasing demand in Los Angeles - lake levels sharply declined following this event. The black square depicts the formation of the Mono Lake Committee in 1978, which fought for and won protections for the lake - since then, lake levels have gradually increased. This graph also depicts the ideal stable lake level of 6392 feet above sea level and the level at which land bridges will emerge, 6377 feet above sea level. Land bridges allow predators access to major nesting site for birds, and they will reemerge if lake levels decrease to 6377 feet once again.
+**Figure 1:** Annual changes in lake level at Mono Lake in Lee Vining, CA along with potential causes and impacts. The black triangle depicts the water diversions that began in 1941, diverting water from the lake's tributary streams to meet increasing demand in Los Angeles - lake levels sharply declined following this event. The black square depicts the formation of the Mono Lake Committee in 1978, which fought for and won protections for the lake - since then, lake levels have gradually increased. This graph also depicts the ideal stable lake level of 6392 feet above sea level and the level at which land bridges will emerge, 6377 feet above sea level. Land bridges allow predators access to major nesting site for birds, and they will reemerge if lake levels decrease to 6377 feet once again. Data source: Mono Basin Clearinghouse, 2020.

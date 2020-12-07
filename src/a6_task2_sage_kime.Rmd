@@ -38,7 +38,7 @@ party_subset <- conservation_survey %>%
   na.omit()
 ```
 
-### Data visualization
+### Survey responses
 
 ```{r, echo=FALSE}
 # Create a finalized table w/ counts and proportions - add figure caption
@@ -76,7 +76,7 @@ survey_tidy <- tidy(survey_x2) # use tidy function from broom package to make in
 
 ### Summary
 
-There is a significant association between political affiliation and identifying as an environmentalist ($\chi$^2^(`r survey_tidy$parameter`) = `r round(survey_tidy$statistic,2)`, *p* = `r round(survey_tidy$p.value, 3)`). Looking back at Table 1, we can see that 53.73% of liberals identified as environmentalists while only 33.65% of conservatives identified as environmentalists - this difference is large enough to support our rejection of the null hypothesis.
+There is a significant association between political affiliation and identifying as an environmentalist ($\chi$^2^(`r survey_tidy$parameter`) = `r round(survey_tidy$statistic,2)`, *p* = `r round(survey_tidy$p.value, 3)`). Looking back at Table 1, we can see that 53.73% of liberals identified as environmentalists while only 33.65% of conservatives identified as environmentalists. Additionally, 50.24% of conservatives responded that they do NOT identify as environmentalists compared to only 24.47% of liberals. These differences are large enough to support our rejection of the null hypothesis and conclude that there is a significant association between the variables, with liberals being more likely to identify as environmentalists.
 
 ### Citation
 
