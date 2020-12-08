@@ -39,7 +39,7 @@ lizards <- read.csv(here("data", "lizards.csv")) %>%
 
 ```{r, echo=FALSE, warning=FALSE}
 ggplot(data = lizards, aes(x = spp, y = total_length)) +
-  geom_jitter(width = .3, size = 3, aes(color = spp)) +
+  geom_jitter(width = .1, size = 3, alpha = .65, aes(color = spp)) +
   geom_boxplot(outlier.shape = NA, fill = NA, width = .3) +
   stat_summary(fun.y = mean) +
   labs(x = "Species", y = "Total length (mm)", title = "Comparing total lengths of female lizards by species")
